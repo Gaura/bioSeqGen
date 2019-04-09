@@ -1,0 +1,16 @@
+Package: bioSeqGen
+Type: Package
+Title: An R package to generate reads an anlyse associated data
+Version: 0.1.1
+Date: 2018-11-22
+Author: Gaurav Sharma
+Maintainer: Gaurav Sharma <gameider12@gmail.com>
+Description: Functions for the projection of data into the spaces defined by PCA, CoGAPS, NMF, correlation, and clustering.
+License: GPL (==2)
+Imports:   
+Suggests:
+LazyData: TRUE
+RoxygenNote: 6.1.1
+Encoding: UTF-8
+VignetteBuilder: knitr
+URL: https://github.com/Gaura/bioSeqGen.git
