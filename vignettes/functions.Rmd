@@ -1,0 +1,71 @@
+---
+title: "Untitled"
+author: "Gaurav"
+date: "April 8, 2019"
+output: html_document
+---
+
+```{r}
+set.seed(123)
+startPos <- sample(1e6,nreads)
+reads <- NULL
+for(i in 1:nreads){
+      if(startPos[i] + 9999 > 1e6){
+            reads <- c(reads,substr(ecoli1M,startPos[i],1e6))
+      }
+      else{
+            reads <- c(reads,substr(ecoli1M,startPos[i],startPos[i] + 9999))
+      }
+      
+}
+```
+
+```{r}
+error = 0.1
+nucleotides <- c('a','t','c','g')
+```
+
+```{r}
+flipReads <- function(rds,error){
+flippedReads <- NULL
+for(i in seq(1,length(rds))){
+subread <- rds[i]
+subreadLen <- nchar(subread)
+nErrors <- floor(subreadLen * error)
+subread <- strsplit(subread,'')[[1]]
+subread <- flipBase(subread,subreadLen,nErrors)
+flippedReads <- c(flippedReads, paste0(subread,collapse = ''))
+}
+return(flippedReads)
+}
+```
+
+```{r}
+flipBase <- function(read,readLen,nErr){
+samp <- sample(readLen,nErr)
+for(i in 1:length(samp)){
+      basePos <- which(nucleotides == read[samp[i]])
+      read[samp[i]] <- sample(nucleotides[-basePos],1)
+}
+return(read)
+}
+```
+
+```{r}
+read.fasta('data/ecoliGenome.fasta') -> ecoliSeq
+ecoliSeq
+ecoliSeq$NC_011750.1
+View(ecoliSeq)
+paste0(ecoliSeq$NC_011750.1)
+paste0(ecoliSeq$NC_011750.1,collapse = '') -> ecoliGenome
+nchars(ecoliGenome)
+length(ecoliGenome)
+ecoliGenome <- ecoliGenome[1]
+length(ecoliGenome)
+nchars(ecoliGenome)
+nchar(ecoliGenome)
+ecoli1M <- substr(ecoliGenome,1,1e6)
+```
+
+
+
