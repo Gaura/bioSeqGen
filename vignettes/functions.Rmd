@@ -52,6 +52,42 @@ return(read)
 ```
 
 ```{r}
+flippedReads5 <- reads
+flippedReads5 <- flipReads(flippedReads5,0.05)
+```
+```{r}
+readID <- paste0('@read_',1:3000,'\n')
+readIdNflpdReads5 <- paste0(readID,toupper(flippedReads5))
+setwd("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/tst")
+write(readIdNflpdReads5,file = 'flippedReadsWithError5Pcent.fq')
+#write(readIdNflpdReads5,file = 'ecoli_5pcent_error_reads.fasta')
+```
+```{r}
+#Count kmers
+kmerLen = 21
+kmerEndPos = nchar(ecoliGenome) - kmerLen + 1
+kmers <- NULL
+for(i in 1:kmerEndPos){
+      kmers <- c(kmers,substr(ecoliGenome,i,i+20))
+}
+kmerFreq <- table(kmers)
+beepr::beep(8)
+```
+```{r}
+#kmers for reads
+readKmers <- NULL
+for(i in 1:length(flippedReads)){
+      kmerEndPos = nchar(flippedReads[i]) - kmerLen + 1
+      for(j in 1:kmerEndPos){
+            readKmers <- c(readKmers,substr(flippedReads[i],j,j+kmerLen-1))
+      }
+freqReadKmers <- table(readKmers)
+beepr::beep(8)
+}
+```
+
+
+```{r}
 read.fasta('data/ecoliGenome.fasta') -> ecoliSeq
 ecoliSeq
 ecoliSeq$NC_011750.1
