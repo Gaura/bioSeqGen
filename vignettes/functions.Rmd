@@ -52,14 +52,17 @@ return(read)
 ```
 
 ```{r}
-flippedReads5 <- reads
-flippedReads5 <- flipReads(flippedReads5,0.05)
-```
-```{r}
+for(i in 6:20){
+print(i)
+flippedReads <- reads
+flippedReads <- flipReads(flippedReads,i/100)
+print(sum(strsplit(reads[2],'')[[1]] != strsplit(flippedReads[2],'')[[1]]))
 readID <- paste0('@read_',1:3000,'\n')
-readIdNflpdReads5 <- paste0(readID,toupper(flippedReads5))
-setwd("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/tst")
-write(readIdNflpdReads5,file = 'flippedReadsWithError5Pcent.fq')
+readIdNflpdReads <- paste0(readID,toupper(flippedReads))
+setwd("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try")
+filename = paste0("flippedReadsWithError",as.character(i),"Pcent.fq")
+write(readIdNflpdReads,file = filename)
+}
 #write(readIdNflpdReads5,file = 'ecoli_5pcent_error_reads.fasta')
 ```
 ```{r}
@@ -73,6 +76,7 @@ for(i in 1:kmerEndPos){
 kmerFreq <- table(kmers)
 beepr::beep(8)
 ```
+
 ```{r}
 #kmers for reads
 readKmers <- NULL
@@ -103,5 +107,40 @@ nchar(ecoliGenome)
 ecoli1M <- substr(ecoliGenome,1,1e6)
 ```
 
+```{r}
+setwd("D:/JHU/Spring19/601.749ComparativeGenomics/Project")
+kmerDf <- list()
+num <- 1
+dfKmers <- data.frame(count = 1:210)
+for(i in seq(0,15,3)){
+      filename <- paste0(as.character(i),'pcent21mer.histo')
+      kmerDf[[num]] <- read.table(filename,sep = ' ',header = F)
+      dfKmers[[paste0('err',as.character(i))]] <- 0
+      dfKmers[,(num + 1)][which(dfKmers$count %in% kmerDf[[num]]$V1)] <- kmerDf[[num]]$V2
+      num <- num + 1
+}
+```
+```{r}
+library(reshape2)
+library(ggplot2)
+dfKmersMelt <- melt(dfKmers, id.vars = 1)
+colnames(dfKmersMelt)[2] <- "Error"
+ggplot(dfKmersMelt,aes(x=count,y=log10(value),colour = Error)) + geom_line() + xlab("Kmer Count") + ylab("Log10(#kmers)") + labs(color = "Error %\n")
+```
+#generate kmers from the 1st 1000 bases
+```{r}
+ecoli1k <- substr(ecoli1M,1,100000)
+kmers <- NULL
+kmerEndPos = nchar(ecoli1k) - 20
+for(i in seq(1,kmerEndPos,20)){
+      kmers <- c(kmers, substr(ecoli1k,i,i+20))
+}
+```
 
-
+```{r}
+library(stringdist)
+kmerDist <- stringdistmatrix(kmers)
+kmerMat <- as.matrix(kmerDist)
+table(kmerMat)[1:5]
+```
+Found only adjoining kmers have smaller distance of 2 with each other 
