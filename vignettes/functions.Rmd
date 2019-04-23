@@ -167,6 +167,7 @@ p0m21_1 <- pcent0_21mer[crt,]
 freq_p021m <- sapply(seq(1,length(p0m21_1)), function(x){strsplit(p0m21_1[x],'>',fixed = T)[[1]][2]}) %>% as.numeric()
 p0m21_2 <- pcent0_21mer[!crt,]
 p0m21 <- data.frame(kmer = p0m21_2, freq = freq_p021m, stringsAsFactors = F)
+#p0m21 <- as.data.frame(cbind(p0m21_1,p0m21_2))
 rm(p0m21_2)
 rm(p0m21_1)
 rm(freq_p021m)
@@ -186,12 +187,13 @@ Mutate and compare
 ```{r}
 kmerLen <- 21
 sameKmer <- NULL
-n <- 5
+n <- length(p0m21[,1])
 nucleotidesCap <- list(A = 'A',C = 'C',G = 'G',T ='T')
-for(i in seq(1,n)){
-      splitKmer <- strsplit(tempKmers,'',fixed = T)[[1]]
+for(i in seq(1,10000)){
+      splitKmer <- strsplit(as.character(p0m21[i,1]),'',fixed = T)[[1]]
       tempSameKmer <- 0
       for(j in seq(1,kmerLen)){
+            #print(tempSameKmer)
             nucList <- nucleotidesCap
             nucList[[splitKmer[j]]] <- NULL
             if(j == 1){
@@ -207,13 +209,29 @@ for(i in seq(1,n)){
                   merged2 <- paste0(splitKmer[(j+1):kmerLen],collapse = '')
                   mutatedKmers <- sapply(1:3,function(x){paste0(merged1,nucList[x],merged2,collapse = '')})
             }
-            tempSameKmer <- tempSameKmer + sum(mutatedKmers %in% tempKmers)
+            tempSameKmer <- tempSameKmer + sum(mutatedKmers %in% p0m21[,1])
       }
       sameKmer <- c(sameKmer,tempSameKmer)
+      frac <- i/n
+      if(frac > 0.95){
+            print("95% done")
+      }
+      else if(frac > 0.5){
+            print("50% done")
+      }
+      else if(frac > 0.1){
+            print("10% done")
+      }
+            
 }
 ```
 
 ```{r}
 splitAt <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
+```
+
+```{r}
+library(stringdist)
+distMat <- stringdistmatrix(as.character(p0m21[1:10000,1]),method = "hamming")
 ```
 
