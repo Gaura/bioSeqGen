@@ -187,13 +187,33 @@ Mutate and compare
 kmerLen <- 21
 sameKmer <- NULL
 n <- 5
-
+nucleotidesCap <- list(A = 'A',C = 'C',G = 'G',T ='T')
 for(i in seq(1,n)){
-      splitKmer <- strsplit(p0m21[i,1],'',fixed = T)[[1]]
-      tempSameKmer <- NULL
+      splitKmer <- strsplit(tempKmers,'',fixed = T)[[1]]
+      tempSameKmer <- 0
       for(j in seq(1,kmerLen)){
-            
+            nucList <- nucleotidesCap
+            nucList[[splitKmer[j]]] <- NULL
+            if(j == 1){
+                  merged <- paste0(splitKmer[2:kmerLen],collapse = '')
+                  mutatedKmers <- sapply(1:3,function(x){paste0(nucList[x],merged,collapse = '')})
+            }
+            else if(j == kmerLen){
+                  merged <- paste0(splitKmer[1:(kmerLen-1)],collapse = '')
+                  mutatedKmers <- sapply(1:3,function(x){paste0(merged,nucList[x],collapse = '')})
+            }
+            else {
+                  merged1 <- paste0(splitKmer[1:(j-1)],collapse = '')
+                  merged2 <- paste0(splitKmer[(j+1):kmerLen],collapse = '')
+                  mutatedKmers <- sapply(1:3,function(x){paste0(merged1,nucList[x],merged2,collapse = '')})
+            }
+            tempSameKmer <- tempSameKmer + sum(mutatedKmers %in% tempKmers)
       }
+      sameKmer <- c(sameKmer,tempSameKmer)
 }
+```
+
+```{r}
+splitAt <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
 ```
 
