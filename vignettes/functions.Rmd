@@ -159,20 +159,24 @@ read1000mersDist <- stringdistmatrix(reads1000mers)
 ```
 
 ```{r message=F}
-setwd("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try")
-pcent0_21mer <- read.table('0pcent21mer.fa',stringsAsFactors = F )
+filepath <- "D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/0pcent21mer.fa"
+readKmerfile <- function(filepath)
+{
+pcent0_21mer <- read.table(filepath,stringsAsFactors = F )
 library(dplyr)
 crt <- grepl('>',pcent0_21mer[,1])
 p0m21_1 <- pcent0_21mer[crt,]
 freq_p021m <- sapply(seq(1,length(p0m21_1)), function(x){strsplit(p0m21_1[x],'>',fixed = T)[[1]][2]}) %>% as.numeric()
 p0m21_2 <- pcent0_21mer[!crt,]
 p0m21 <- data.frame(kmer = p0m21_2, freq = freq_p021m, stringsAsFactors = F)
+return(p0m21)
+}
 #p0m21 <- as.data.frame(cbind(p0m21_1,p0m21_2))
-rm(p0m21_2)
-rm(p0m21_1)
-rm(freq_p021m)
-rm(crt)
-rm(pcent0_21mer)
+# rm(p0m21_2)
+# rm(p0m21_1)
+# rm(freq_p021m)
+# rm(crt)
+# rm(pcent0_21mer)
 ```
 
 ```{r}
