@@ -6,3 +6,5 @@
 *.fai
 *.RData
 data/tst/
+*.fa
+*.csv
