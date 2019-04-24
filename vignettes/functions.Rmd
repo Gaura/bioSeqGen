@@ -55,7 +55,7 @@ return(read)
 ```
 
 ```{r}
-for(i in 6:20){
+for(i in 4){
 print(i)
 flippedReads <- reads
 flippedReads <- flipReads(flippedReads,i/100)
@@ -165,7 +165,7 @@ read1000mersDist <- stringdistmatrix(reads1000mers)
 ```
 
 ```{r message=F}
-filepath <- "D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/0pcent21mer.fa"
+filepath <- "D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/4pcent21mer1L.fa"
 readKmerfile <- function(filepath)
 {
 pcent0_21mer <- read.table(filepath,stringsAsFactors = F )
@@ -242,17 +242,17 @@ splitAt <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
 
 ```{r}
 library(stringdist)
-distMat <- stringdistmatrix(as.character(p0m21[1:10000,1]),method = "hamming")
+distMat <- stringdistmatrix(as.character(p5m21[1:100000,1]),method = "hamming")
 ```
 
 ```{r}
-p5m21 <- readKmerfile("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/5pcent21mer.fa")
+p5m21 <- readKmerfile("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/4pcent21mer1L.fa")
 ```
 
 ```{r}
 indices <- list()
 num <- 1
-for(i in seq(1,1060000,10000)){
+for(i in seq(1,900000,10000)){
 distMat <- stringdistmatrix(as.character(p5m21[i:(i+9999),1]),method = "hamming")
 indices[[num]] <- which(as.matrix(distMat) == 1)
 num <- num + 1
@@ -272,7 +272,7 @@ else if(num > 10){
 rows <- NULL
 cols <- NULL
 num <- 0
-for(j in 1:2){
+for(j in 1:length(indices)){
 indx <- indices[[j]]
 for(i in seq(1:length(indx))){
 rowNo <- (indx[i] %% 10000) + num*10000
@@ -287,7 +287,6 @@ num <- num +1
 ```
 
 ```{r}
-p5m21copy <- p5m21
 df <- data.frame(row = rows, col = cols, stringsAsFactors = F)
 ```
 
@@ -323,8 +322,8 @@ for(i in 1:5){
       else {
             simKmersIndices <- as.vector(dfm[i,])
       }
-      p5m21copy$freq[simKmersIndices[1]] <- sum(p5m21copy$freq[simKmersIndices])
-      p5m21copy <- p5m21copy[-simKmersIndices[-1],]
+      p5m21$freq[simKmersIndices[1]] <- sum(p5m21$freq[simKmersIndices])
+      p5m21 <- p5m21[-simKmersIndices[-1],]
 }
 ```
 
