@@ -239,3 +239,26 @@ library(stringdist)
 distMat <- stringdistmatrix(as.character(p0m21[1:10000,1]),method = "hamming")
 ```
 
+```{r}
+p5m21 <- readKmerfile("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/5pcent21mer.fa")
+```
+
+```{r}
+indices <- list()
+num <- 1
+for(i in seq(1,1060000,10000)){
+distMat <- stringdistmatrix(as.character(p5m21[i:(i+9999),1]),method = "hamming")
+indices[[num]] <- which(distMat == 1)
+num <- num + 1
+if(num > 90){
+      print("90% done")
+}
+else if(num > 50){
+      print("50% done")
+}
+else if(num > 10){
+      print("10% done")
+}
+}
+```
+
