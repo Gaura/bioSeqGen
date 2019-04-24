@@ -248,7 +248,7 @@ indices <- list()
 num <- 1
 for(i in seq(1,1060000,10000)){
 distMat <- stringdistmatrix(as.character(p5m21[i:(i+9999),1]),method = "hamming")
-indices[[num]] <- which(distMat == 1)
+indices[[num]] <- which(as.matrix(distMat) == 1)
 num <- num + 1
 if(num > 90){
       print("90% done")
@@ -261,4 +261,28 @@ else if(num > 10){
 }
 }
 ```
+
+```{r}
+rows <- NULL
+cols <- NULL
+num <- 0
+for(j in 1:2){
+indx <- indices[[j]]
+for(i in seq(1:length(indx))){
+rowNo <- (indx[i] %% 10000) + num*10000
+colNo <- ceiling(indx[i]/10000) + num*10000
+if(rowNo >= colNo){
+      rows <- c(rows,rowNo)
+      cols <- c(cols,colNo)
+}
+}
+num <- num +1
+}
+```
+
+```{r}
+p5m21copy <- p5m21
+```
+
+
 
