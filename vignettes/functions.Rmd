@@ -282,6 +282,28 @@ num <- num +1
 
 ```{r}
 p5m21copy <- p5m21
+df <- data.frame(row = rows, col = cols, stringsAsFactors = F)
+```
+
+```{r}
+simKmers <- list()
+num <- 1
+for(i in 1:length(df[,1])){
+      kmerIndices <- NULL
+      howManyKmersEqual <- which(df[,1] == df[i,1])
+      if(length(howManyKmersEqual) > 1){
+            simKmers[[num]] <- df[,2][howManyKmersEqual[-1]]
+            df <- df[-howManyKmersEqual[-1],]
+      }
+      else {
+            simKmers[[num]] <- 0
+      }
+      num <- num + 1
+}
+```
+
+```{r}
+
 ```
 
 
