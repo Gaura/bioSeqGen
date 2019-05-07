@@ -285,11 +285,12 @@ if(rowNo >= colNo){
 num <- num +1
 }
 ```
-
+Rows and cols are indices of kmers with 1 hamming distance
 ```{r}
 df <- data.frame(row = rows, col = cols, stringsAsFactors = F)
 ```
 
+Note the dimension of simKmers will look more because df is getting trimmed
 ```{r}
 simKmers <- list()
 num <- 1
@@ -307,15 +308,16 @@ for(i in 1:length(df[,1])){
 }
 ```
 
+
 ```{r}
-#nonZeroSimKmers <- sapply(1:length(simKmers),function(x) simKmers[[x]][1] != 0)
+nonZeroSimKmers <- sapply(1:length(simKmers),function(x) simKmers[[x]][1] != 0)
 ```
 
 Now add kmer freq
 ```{r}
 dfm <- as.matrix(df)
 dfm <- dfm[,c(2,1)]
-for(i in 1:5){
+for(i in 1:length(simKmers)){
       if(simKmers[[i]][1] != 0){
       simKmersIndices <-  as.vector(c(dfm[i,],simKmers[[i]][1]))
       }
@@ -327,4 +329,8 @@ for(i in 1:5){
 }
 ```
 
+```{r}
+table(p5m21$freq) -> tb
+write.csv(as.data.frame(tb),file = '4p21m1Liter1.csv',row.names = F,quote = F)
+```
 
