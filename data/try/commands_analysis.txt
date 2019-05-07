@@ -1,0 +1,86 @@
+    1  cd /
+    2  jellyfish --version
+    3  exit
+    4  jellyfish
+    5  gerbil
+    6  cd /mnt/hgfs/Project/
+    7  ls
+    8  cd bioSeqGen/data/try/
+    9  ls
+   10  gerbil -k 31 flippedReadsWithError0Pcent.fq ~/Downloads/temp_dir/ 0pcent31mer
+   11  ls
+   12  less 0pcent31mer 
+   13  gerbil -v
+   14  toFasta
+   15  gerbil toFasta
+   16  gerbil -h
+   17  gerbil -k 31 -o fasta flippedReadsWithError0Pcent.fq ~/Downloads/temp_dir/ 0pcent31mer.fa
+   18  less 0pcent31mer.fa 
+   19  wc -l 0pcent31mer.fa 
+   20  ls -a 
+   21  ls -help
+   22  ls --help
+   23  ls -l
+   24  ls -l --block-size=M
+   25  gerbil -k 1000 -o fasta flippedReadsWithError0Pcent.fq ~/Downloads/temp_dir/ 0pcent1000mer.fa
+   26  gerbil -k 31 -o fasta -x h flippedReadsWithError0Pcent.fq ~/Downloads/temp_dir/ 0pcent31mer.fa
+   27  ls
+   28  less 0pcent31mer.fa 
+   29* gerbil -k 131 -x h flippedReadsWithError0Pcent.fq ~/Downloads/temp_dir/ 0pcent31mer
+   30  ls
+   31  gerbil -h
+   32  gerbil -k 1000 -o fasta flippedReadsWithError0Pcent.fq ~/Downloads/temp_dir/ 0pcent1000mer.fa
+   33  gerbil -k 136 -x h -o fasta flippedReadsWithError0Pcent.fq ~/Downloads/temp_dir/ 0pcent136mer.fa
+   34  ls
+   35  less 0pcent136mer.fa 
+   36  gerbil -k 136 -x h -o fasta flippedReadsWithError0Pcent.fq ./ 0pcent136mer.fa
+   37  ls
+   38  less 0pcent136mer.fa 
+   39  less 0pcent31mer.fa 
+   40  grep > 0pcent31.fa | less
+   41  grep -Ri -- '->someFunction' . 0pcent31mer.fa 
+   42* 
+   43  less 0pcent136mer.fa 
+   44  grep -Ri -- '>'  0pcent31mer.fa | wc -l
+   45  python
+   46  less 0pcent136mer.fa 
+   47  ls
+   48  less histogram0pcent136mer.csv 
+   49  less histogram0pcent136mer.histo 
+   50* grep -Ri -- '>'  0pcent31mer.fa | 
+   51  gerbil -k 21 -x h -o fasta flippedReadsWithError0Pcent.fq ./ 0pcent21mer.fa
+   52  less 0pcent31mer.fa 
+   53  gerbil -k 21 -x h -o fasta flippedReadsWithError5Pcent.fq ./ 5pcent21mer.fa
+   54  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent.fq ./ 4pcent21mer1L.fa
+   55  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1L.fq ./ 4pcent21mer1L.fa
+   56  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent.fq ./ 4pcent21mer1L.fa
+   57  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1L.fq ./ 4pcent21mer1L.fa
+   58  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent.fq ./ 4pcent21mer1L.fa
+   59  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1L.fq ./ 4pcent21mer1L.fa
+   60  valgrind -v gerbil
+   61  sudo apt install valgrind
+   62  valgrind -v gerbil
+   63  valgrind
+   64  valgrind -v gerbil
+   65  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1L.fq ./ 4pcent21mer1L.fa
+   66  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1l.fq ./ 4pcent21mer1L.fa
+   67  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1.fq ./ 4pcent21mer1L.fa
+   68  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1l.fq ./ 4pcent21mer1L.fa
+   69  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent.fq ./ 4pcent21mer1L.fa
+   70  unlimit -c
+   71  ulimit -c
+   72  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1l.fq ./ 4pcent21mer1L.fa
+   73  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent.fq ./ 5pcent21mer.fa
+   74  gerbil -k 21 -x h -o fasta flippedReadsWithError5Pcent.fq ./ 5pcent21mer.fa
+   75  gerbil -k 21 -x h -o fasta flippedReadsWithError5Pcent_1l.fq ./ 4pcent21mer1l.fa
+   76  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent_1l.fq ./ 4pcent21mer1l.fa
+   77  less flippedReadsWithError4Pcent1L.fq 
+   78  wc -l flippedReadsWithError4Pcent1L.fq 
+   79  gerbil -k 21 -x h -o fasta flippedReadsWithError6Pcent1L.fq ./ 6pcent21mer1L.fa
+   80  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1L.fq ./ 4pcent21mer1L.fa
+   81  cmake -v
+   82  gerbil -k 21 -x h -o fasta flippedReadsWithError4Pcent1L.fq ./ 4pcent21mer1L.fa
+   83  paste - - - - < flippedReadsWithError4Pcent1L.fq | cut -f 1,2 | sed 's/^@/>/' | tr "\t" "\n" > file.fa
+   84  ls
+   85  gerbil -k 21 -x h -o fasta file.fa ./ 4pcent21mer1L.fa
+   86  history > commands_analysis.txt
