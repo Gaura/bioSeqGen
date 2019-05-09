@@ -7,19 +7,22 @@ output: html_document
 
 #Generate Reads
 ```{r}
+generateReads <- function(genome,depth = 30, readLen = 5000 ){
 set.seed(123)
-depth <- 30
-nreads <- 1e5*30/5000
-startPos <- sample(1e5,nreads)
+genomeLen <- nchar(genome)
+nreads <- genomeLen*depth/readLen
+startPos <- sample(genomeLen,nreads)
 reads <- NULL
 for(i in 1:nreads){
-      if(startPos[i] + 4999 > 1e5){
-            reads <- c(reads,substr(ecoli1L,startPos[i],1e5))
+      if(startPos[i] + (readLen - 1) > genomeLen){
+            reads <- c(reads,substr(genome,startPos[i],genomeLen))
       }
       else{
-            reads <- c(reads,substr(ecoli1L,startPos[i],startPos[i] + 4999))
+            reads <- c(reads,substr(genome,startPos[i],(startPos[i] + readLen - 1)))
       }
       
+}
+return(reads)
 }
 ```
 
@@ -27,8 +30,8 @@ for(i in 1:nreads){
 error = 0.1
 nucleotides <- c('a','t','c','g')
 ```
-
-```{r}
+flipReads
+```{r flipReads}
 flipReads <- function(rds,error){
 flippedReads <- NULL
 for(i in seq(1,length(rds))){
@@ -36,7 +39,7 @@ subread <- rds[i]
 subreadLen <- nchar(subread)
 nErrors <- floor(subreadLen * error)
 subread <- strsplit(subread,'')[[1]]
-subread <- flipBase(subread,subreadLen,nErrors)
+if (nErrors != 0) { subread <- flipBase(subread,subreadLen,nErrors)}
 flippedReads <- c(flippedReads, paste0(subread,collapse = ''))
 }
 return(flippedReads)
@@ -55,7 +58,7 @@ return(read)
 ```
 
 ```{r}
-for(i in 4){
+for(i in 5){
 print(i)
 flippedReads <- reads
 flippedReads <- flipReads(flippedReads,i/100)
@@ -80,8 +83,8 @@ write(readIdNflpdReads,file = filename)
 # kmerFreq <- table(kmers)
 # beepr::beep(8)
 ```
-
-```{r}
+getKmersFromRead
+```{r getKmersFromRead}
 #kmers for reads
 getKmersFromRead <- function(flippedReads,kmerLen){
 readKmers <- NULL
@@ -97,13 +100,12 @@ beepr::beep(8)
 return(readKmers)
 }
 ```
-
-
+Read Ecoli Genome
 ```{r}
 library(seqinr)
 read.fasta('D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/ecoliGenome.fasta') -> ecoliSeq
-ecoliSeq
-ecoliSeq$NC_011750.1
+# ecoliSeq
+# ecoliSeq$NC_011750.1
 View(ecoliSeq)
 paste0(ecoliSeq$NC_011750.1)
 paste0(ecoliSeq$NC_011750.1,collapse = '') -> ecoliGenome
@@ -332,5 +334,57 @@ for(i in 1:length(simKmers)){
 ```{r}
 table(p5m21$freq) -> tb
 write.csv(as.data.frame(tb),file = '4p21m1Liter1.csv',row.names = F,quote = F)
+```
+Ecoli 10 k reads of length 1k
+```{r}
+ecoli10k <- substr(ecoli1L,1,1e4)
+reads10k <- generateReads( genome = ecoli10k, readLen = 1000)
+#flipReads - Generate Errors
+reads10kWith5PcentError <- flipReads(reads10k,0.05)
+reads10kWith5PcentError <- toupper(reads10kWith5PcentError)
+```
+
+```{r}
+for(i in 5){
+print(i)
+nreads <- length(reads10k)
+#nreads <- 300
+flippedReads <- reads10k
+flippedReads <- flipReads(flippedReads,i/100)
+print(sum(strsplit(reads10k[2],'')[[1]] != strsplit(flippedReads[2],'')[[1]]))
+readID <- paste0('>read_',1:nreads)
+readIdNflpdReads <- unlist(lapply(1:nreads,function(x){c(readID[x],toupper(flippedReads[x]))}))
+writeDf <- data.frame(data = readIdNflpdReads)
+setwd("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/10k")
+filename = paste0("flippedReadsWithError",as.character(i),"Pcent10k.fasta")
+write.table(readIdNflpdReads,file = filename, col.names = F, row.names = F, quote = F)
+}
+```
+Get kmers using parallel
+```{r}
+getKmersFromRead <- function(flippedReads,kmerLen = 21){
+readLen <- nchar(flippedReads)
+readKmers <- sapply(1:(readLen - kmerLen +1),function(i){
+            substr(flippedReads,i,i+kmerLen-1)
+      })
+#freqReadKmers <- table(readKmers)
+#beepr::beep(8)
+return(readKmers)
+}
+```
+getKmers
+```{r}
+kmers10kWith5pcentError <- sapply(1:length(reads10kWith5PcentError),function(x) getKmersFromRead(reads10kWith5PcentError[x]))
+beepr::beep(8)
+kmers10kWith5pcentError <- unlist(kmers10kWith5pcentError) #Unlist kmers
+#get Table
+kmers10kWith5pcentErrorTable <- table(kmers10kWith5pcentError) 
+#get Df
+kmers10kWith5pcentErrorDf <- as.data.frame(kmers10kWith5pcentErrorTable)
+```
+
+```{r}
+library(qrqc)
+reads10kFile5pcent <- readSeqFile("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/10k/flippedReadsWithError0Pcent10k.fa",type = "fasta",max.length = 5000, k = 21, quality = "sanger")
 ```
 
