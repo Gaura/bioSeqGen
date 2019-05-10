@@ -28,7 +28,7 @@ return(reads)
 
 ```{r}
 error = 0.1
-nucleotides <- c('a','t','c','g')
+nucleotides <- c('A','T','C','G')
 ```
 flipReads
 ```{r flipReads}
@@ -342,6 +342,9 @@ reads10k <- generateReads( genome = ecoli10k, readLen = 1000)
 #flipReads - Generate Errors
 reads10kWith5PcentError <- flipReads(reads10k,0.05)
 reads10kWith5PcentError <- toupper(reads10kWith5PcentError)
+reads10kWith10PcentError <- flipReads(reads10k,0.1)
+reads10kWith15PcentError <- flipReads(reads10k,0.15)
+reads10kWith20PcentError <- flipReads(reads10k,0.2)
 ```
 
 ```{r}
@@ -374,17 +377,161 @@ return(readKmers)
 ```
 getKmers
 ```{r}
-kmers10kWith5pcentError <- sapply(1:length(reads10kWith5PcentError),function(x) getKmersFromRead(reads10kWith5PcentError[x]))
+kmers10kWith5pcentError <- sapply(1:length(reads10k),function(x) getKmersFromRead(reads10kWith5PcentError[x]))
+kmers10k <- sapply(1:length(reads10k),function(x) getKmersFromRead(reads10k[x]))
+kmers10k <- unlist(kmers10k)
 beepr::beep(8)
 kmers10kWith5pcentError <- unlist(kmers10kWith5pcentError) #Unlist kmers
 #get Table
-kmers10kWith5pcentErrorTable <- table(kmers10kWith5pcentError) 
+kmers10kE05X30T <- table(kmers10kWith5pcentError) 
 #get Df
-kmers10kWith5pcentErrorDf <- as.data.frame(kmers10kWith5pcentErrorTable)
+kmers10kE05X30Df <- as.data.frame(kmers10kE05X30T, stringAsFactors = FALSE )
+#remove Table
+rm(kmers10kE05X30T)
+#for some reasons the table was giving 4 kmers extra
+```
+
+```{r getKmersDf}
+getKmersDf <- function(reads10kWith5PcentError){
+nReads <- length(reads10kWith5PcentError)
+kmers10kWith5pcentError <- sapply(1:nReads,function(x) getKmersFromRead(reads10kWith5PcentError[x]))
+kmers10kWith5pcentError <- unlist(kmers10kWith5pcentError) #Unlist kmers
+#get Table
+kmers10kE05X30T <- table(kmers10kWith5pcentError) 
+#get Df
+kmers10kE05X30Df <- as.data.frame(kmers10kE05X30T, stringAsFactors = FALSE )
+#remove Table
+rm(kmers10kE05X30T)
+beepr::beep(8)
+return(kmers10kE05X30Df)
+}
+```
+
+```{r}
+kmers10kE00X30Df <- getKmersDf(reads10k)
+kmers10kWith10PcentErrorDf <- getKmersDf(reads10kWith10PcentError)
+kmers10kWith15PcentErrorDf <- getKmersDf(reads10kWith15PcentError)
+kmers10kWith20PcentErrorDf <- getKmersDf(reads10kWith20PcentError)
+```
+getHammingDistances from reference string
+```{r}
+library(stringdist)
+refKmer <- as.character(kmers10kE05X30Df[1,1])
+refKmer <- paste0(rep('A',21),collapse = '')
+#refKmer <- paste0(refKmer,'A',collapse = '')
+# refKmer <- 'AAAAACTGCTGGCTGTGGGGC'
+refDist2 <- sapply(1:nrow(kmers10kE05X30Df),function(x){stringdist(kmers10kE05X30Df[x,1],refKmer,method = "hamming")})
+table(refDist2)
+```
+get distances from ref string
+```{r}
+refKmer <- paste0(rep('A',21),collapse = '')
+refDist00p30X <- sapply(1:nrow(kmers10kE00X30Df),function(x){stringdist(kmers10kE00X30Df[x,1],refKmer,method = "hamming")})
+refDist10PcentError <- sapply(1:nrow(kmers10kWith10PcentErrorDf),function(x){stringdist(kmers10kWith10PcentErrorDf[x,1],refKmer,method = "hamming")})
+refDist15PcentError <- sapply(1:nrow(kmers10kWith15PcentErrorDf),function(x){stringdist(kmers10kWith15PcentErrorDf[x,1],refKmer,method = "hamming")})
+refDist20PcentError <- sapply(1:nrow(kmers10kWith20PcentErrorDf),function(x){stringdist(kmers10kWith20PcentErrorDf[x,1],refKmer,method = "hamming")})
+beepr::beep(8)
+```
+Make Tables
+```{r}
+refDist10kT <- table(refDist00p30X)
+refDist5pT <- table(refDist)
+refDist10pT <- table(refDist10PcentError)
+refDist15pT <- table(refDist15PcentError)
+refDist20pT <- table(refDist20PcentError)
+```
+
+```{r}
+library(ggplot2)
+addFreqCol <- function(df,refDistTable,colname){
+   df[[colname]] <- 0
+   tableIdx <- names(refDistTable) %in% df$dist
+   dfIdx <- which(df$dist %in% names(refDistTable))
+   df[dfIdx,colname] <- refDistTable[tableIdx]
+   return(df)
+}
+df <- data.frame(dist = 5:21)
+df <- addFreqCol(df,refDist10kT,'0')
+df <- addFreqCol(df,refDist5pT,'5')
+df <- addFreqCol(df,refDist10pT,'10')
+df <- addFreqCol(df,refDist15pT,'15')
+df <- addFreqCol(df,refDist20pT,'20')
+library(reshape2)
+dfm <- melt(df,id.vars = 1,measure.vars = 2:6)
+```
+```{r}
+ggplot(dfm,aes(x = dist, y = value, colour = variable)) + geom_line() + labs(colour = "Percentage Error") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+cluster similar kmers together
+```{r}
+ref16Df <- kmers10kE05X30Df[which(refDist == 16),]
+ref16Kmer <- ref16Df[1,1]
+ref16Dist <- sapply(1:nrow(ref16Df),function(x){stringdist(ref16Df[x,1],ref16Kmer,method = "hamming")})
+table(ref16Dist)
 ```
 
 ```{r}
 library(qrqc)
 reads10kFile5pcent <- readSeqFile("D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/try/10k/flippedReadsWithError0Pcent10k.fa",type = "fasta",max.length = 5000, k = 21, quality = "sanger")
+```
+Try the same with 50x depth
+```{r}
+reads10kE00X50 <- generateReads(genome = ecoli10k, readLen = 1000, depth = 50)
+#flipReads - Generate Errors
+reads10kE05X50 <- flipReads(reads10kE00X50,0.05)
+reads10kE10X50 <- flipReads(reads10kE00X50,0.1)
+reads10kE15X50 <- flipReads(reads10kE00X50,0.15)
+reads10kE20X50 <- flipReads(reads10kE00X50,0.2)
+```
+getKmers
+```{r}
+kmers10kE00X50Df <- getKmersDf(reads10kE00X50)
+kmers10kE05X50Df <- getKmersDf(reads10kE05X50)
+kmers10kE10X50Df <- getKmersDf(reads10kE10X50)
+kmers10kE15X50Df <- getKmersDf(reads10kE15X50)
+kmers10kE20X50Df <- getKmersDf(reads10kE20X50)
+```
+getHammingDistances from reference string
+```{r}
+library(stringdist)
+refKmer <- paste0(rep('A',21),collapse = '')
+```
+get distances from ref string
+```{r}
+refKmer <- paste0(rep('A',21),collapse = '')
+refDist10kE00X50 <- sapply(1:nrow(kmers10kE00X50Df),function(x){stringdist(kmers10kE00X50Df[x,1],refKmer,method = "hamming")})
+refDist10kE05X50 <- sapply(1:nrow(kmers10kE05X50Df),function(x){stringdist(kmers10kE05X50Df[x,1],refKmer,method = "hamming")})
+refDist10kE10X50 <- sapply(1:nrow(kmers10kE10X50Df),function(x){stringdist(kmers10kE10X50Df[x,1],refKmer,method = "hamming")})
+refDist10kE15X50 <- sapply(1:nrow(kmers10kE15X50Df),function(x){stringdist(kmers10kE15X50Df[x,1],refKmer,method = "hamming")})
+refDist10kE20X50 <- sapply(1:nrow(kmers10kE20X50Df),function(x){stringdist(kmers10kE20X50Df[x,1],refKmer,method = "hamming")})
+beepr::beep(8)
+```
+Make Tables
+```{r}
+refDist00k50XT <- table(refDist10kE00X50)
+refDist05p50XT <- table(refDist10kE05X50)
+refDist10p50XT <- table(refDist10kE10X50)
+refDist15p50XT <- table(refDist10kE15X50)
+refDist20p50XT <- table(refDist10kE20X50)
+```
+
+```{r}
+df50X <- data.frame(dist = 5:21)
+df50X <- addFreqCol(df50X,refDist00k50XT,'0')
+df50X <- addFreqCol(df50X,refDist05p50XT,'5')
+df50X <- addFreqCol(df50X,refDist10p50XT,'10')
+df50X <- addFreqCol(df50X,refDist15p50XT,'15')
+df50X <- addFreqCol(df50X,refDist20p50XT,'20')
+library(reshape2)
+dfm50X <- melt(df50X,id.vars = 1,measure.vars = 2:6)
+```
+```{r}
+ggplot(dfm50X,aes(x = dist, y = value, colour = variable)) + geom_line() + labs(colour = "Percentage Error") + theme(plot.title = element_text(hjust = 0.5))
+```
+check 0% error spectrum genomescope 100bp reads
+Even though Genomescope fails to converge it estimates the coverage correctly
+```{r}
+
 ```
 
