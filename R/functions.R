@@ -40,16 +40,10 @@ flipBase <- function(read,readLen,nErr){
       return(read)
 }
 
-getKmersFromRead <- function(flippedReads,kmerLen){
-      readKmers <- NULL
-      for(i in 1:length(flippedReads)){
-            if(nchar(flippedReads[i]) > kmerLen){
-                  kmerEndPos = nchar(flippedReads[i]) - kmerLen + 1
-                  for(j in 1:kmerEndPos){
-                        readKmers <- c(readKmers,substr(flippedReads[i],j,j+kmerLen-1))
-                  }}
-            #freqReadKmers <- table(readKmers)
-      }
-      beepr::beep(8)
+getKmersFromRead <- function(flippedReads,kmerLen = 21){
+      readLen <- nchar(flippedReads)
+      readKmers <- sapply(1:(readLen - kmerLen +1),function(i){
+            substr(flippedReads,i,i+kmerLen-1)
+      })
       return(readKmers)
 }
