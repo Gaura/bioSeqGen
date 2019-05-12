@@ -538,10 +538,11 @@ Now coming back to find the same, count the name
 kmers10kE05X30Df$refDist <- refDist10kE05X30
 kmers10kE05X30Df <- kmers10kE05X30Df[-which(kmers10kE05X30Df$refDist == Inf),]
 ```
-checking same distance matrix
+Add index column and checking same distance matrix
 ```{r}
 library(dplyr)
 kmers10kE05X30Df <- kmers10kE05X30Df %>% arrange(refDist)
+kmers10kE05X30Df$index <- seq(1,nrow(kmers10kE05X30Df))
 kmers10kE05X30T <- table(kmers10kE05X30Df$refDist)
 km10kE05X30D67 <- kmers10kE05X30Df %>% filter(refDist == 6 | refDist == 7)
 dim(km10kE05X30D67)
@@ -551,7 +552,13 @@ distMatKm10kE05X30D67 <- stringdistmatrix(km10kE05X30D67$kmers10kWith5pcentError
 ```
 
 ```{r}
-
+dist1 <- which(as.matrix(distMatKm10kE05X30D67) == 1)
+#later add the previous rows but for here since it is the first 2 clusters don't need to add
+dimMat <- nrow(as.matrix(distMatKm10kE05X30D67))
+rowNo <- dist1 %% dimMat
+colNo <- ceiling(dist1/dimMat)
+rc <- data.frame(r = rowNo, c = colNo)
+rc <- rc[rc$r > rc$c,]
 ```
 #Test out scoring scheme ATGC = 1,2,4,5
 ```{r}
@@ -563,6 +570,23 @@ score <- sapply(1:length(seqBases),function(x) {
    })
 return(sum(score))
 }
+#Add connected column
+kmers10kE05X30Df$connected <- rep('0',nrow(kmers10kE05X30Df))
+```
+Add connected components
+```{r}
+sapply(1:nrow(rc),function(x){
+   #print(x)
+   if(kmers10kE05X30Df$connected[rc$c[x]] == '0'){
+      kmers10kE05X30Df$connected[rc$c[x]] <<- as.character(rc$r[x])
+      #print(kmers10kE05X30Df$connected[rc$c[x]])
+   }
+   else {
+      kmers10kE05X30Df$connected[rc$c[x]] <<- paste0(kmers10kE05X30Df$connected[rc$c[x]],',',as.character(rc$r[x]))
+      #print(kmers10kE05X30Df$connected[rc$c[x]])
+   }
+}
+   )
 ```
 
 ## Try Clustering on kmers
