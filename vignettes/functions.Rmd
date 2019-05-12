@@ -427,6 +427,7 @@ get distances from ref string
 ```{r}
 refKmer <- paste0(rep('A',21),collapse = '')
 refDist00p30X <- sapply(1:nrow(kmers10kE00X30Df),function(x){stringdist(kmers10kE00X30Df[x,1],refKmer,method = "hamming")})
+refDist10kE05X30 <- sapply(1:nrow(kmers10kE05X30Df),function(x){stringdist(kmers10kE05X30Df[x,1],refKmer,method = "hamming")})
 refDist10PcentError <- sapply(1:nrow(kmers10kWith10PcentErrorDf),function(x){stringdist(kmers10kWith10PcentErrorDf[x,1],refKmer,method = "hamming")})
 refDist15PcentError <- sapply(1:nrow(kmers10kWith15PcentErrorDf),function(x){stringdist(kmers10kWith15PcentErrorDf[x,1],refKmer,method = "hamming")})
 refDist20PcentError <- sapply(1:nrow(kmers10kWith20PcentErrorDf),function(x){stringdist(kmers10kWith20PcentErrorDf[x,1],refKmer,method = "hamming")})
@@ -530,8 +531,76 @@ dfm50X <- melt(df50X,id.vars = 1,measure.vars = 2:6)
 ggplot(dfm50X,aes(x = dist, y = value, colour = variable)) + geom_line() + labs(colour = "Percentage Error") + theme(plot.title = element_text(hjust = 0.5))
 ```
 check 0% error spectrum genomescope 100bp reads
-Even though Genomescope fails to converge it estimates the coverage correctly
+Even though Genomescope fails to converge it estimates the coverage correctly but only with zero error
+
+Now coming back to find the same, count the name
+```{r}
+kmers10kE05X30Df$refDist <- refDist10kE05X30
+kmers10kE05X30Df <- kmers10kE05X30Df[-which(kmers10kE05X30Df$refDist == Inf),]
+```
+checking same distance matrix
+```{r}
+library(dplyr)
+kmers10kE05X30Df <- kmers10kE05X30Df %>% arrange(refDist)
+kmers10kE05X30T <- table(kmers10kE05X30Df$refDist)
+km10kE05X30D67 <- kmers10kE05X30Df %>% filter(refDist == 6 | refDist == 7)
+dim(km10kE05X30D67)
+```
+```{r}
+distMatKm10kE05X30D67 <- stringdistmatrix(km10kE05X30D67$kmers10kWith5pcentError, method = "hamming")
+```
+
 ```{r}
 
+```
+#Test out scoring scheme ATGC = 1,2,4,5
+```{r}
+scoring = list(A = 1, T = 2, C = 4, G = 5)
+getScore <- function(seq){
+seqBases <- strsplit(seq,'')[[1]]
+score <- sapply(1:length(seqBases),function(x) {
+   scoring[[seqBases[x]]]
+   })
+return(sum(score))
+}
+```
+
+## Try Clustering on kmers
+AAA
+AAT
+GGG
+GGA
+AAG
+```{r}
+bases <- list(A = c(1,0,0,0),C = c(0,1,0,0),G = c(0,0,1,0),T = c(0,0,0,1))
+```
+
+```{r getSeqVector}
+getSeqVector <- function(seq){
+seqBases <- strsplit(seq,'')[[1]]
+seqVector <- NULL
+sv <- sapply(1:length(seqBases),function(x) {
+   seqVector <<- c(seqVector,bases[[seqBases[x]]])
+   })
+return(seqVector)
+}
+```
+
+```{r}
+seqs <- c('AAA','AAT','GGG','GGA','AAG','CCA','GCC','AAC','CCC','TTT','GAC','TAT','CGG')
+seqMatrix <- sapply(1:length(seqs), function(x) getSeqVector(seqs[x]))
+seqMatrix <- t(seqMatrix)
+```
+
+```{r}
+library(umap)
+umSM <- umap(seqMatrix, method = "umap-learn")
+```
+
+```{r}
+udf <- as.data.frame(umSM$layout)
+udf$seqs <- seqs
+udf$index <- as.factor(1:13)
+ggplot(udf,aes(x = V1, y = V2, colour = seqs )) + geom_point() + geom_text(aes(label = seqs)) + labs(title = "UMAP of 3mers")
 ```
 
