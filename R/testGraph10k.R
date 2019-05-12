@@ -1,4 +1,5 @@
 library(seqinr)
+library(dplyr)
 source('/work-zfs/mschatz1/genomescopeLR/bioSeqGen/R/functions.R')
 read.fasta('/work-zfs/mschatz1/genomescopeLR/bioSeqGen/data/ecoliGenome.fasta') -> ecoliSeq
 print('Loading Genome')
