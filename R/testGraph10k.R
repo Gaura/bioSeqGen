@@ -32,29 +32,35 @@ kmers10kE05X30Df$index <- seq(1,nrow(kmers10kE05X30Df))
 kmers10kE05X30Df$connected <- rep('0',nrow(kmers10kE05X30Df))
 print('Finding connected kmers')
 dists <- sort(unique(kmers10kE05X30Df$refDist))
-sapply(1:(length(dists)-1), function(x){
-      km10kE05X30D67 <- kmers10kE05X30Df %>% filter(refDist == dists[x] | refDist == dists[x+1])
-      distMatKm10kE05X30D67 <- stringdistmatrix(km10kE05X30D67[,1], method = "hamming")
-      dist1 <- which(as.matrix(distMatKm10kE05X30D67) == 1)
+kmers10kE05X30Df$connected <- rep('0',nrow(kmers10kE05X30Df))
+sapply(1:length(dists), function(x){
+   km10kE05X30D67 <- kmers10kE05X30Df %>% filter(refDist == dists[x])
+   distMatKm10kE05X30D67 <- stringdistmatrix(km10kE05X30D67[,1], method = "hamming")
+   distMatKm10kE05X30D67 <- as.matrix(distMatKm10kE05X30D67)
+   dist1 <- which(distMatKm10kE05X30D67 == 1)
+   if(length(dist1) != 0){
+      #print(dist1)
       #later add the previous rows but for here since it is the first 2 clusters don't need to add
-      dimMat <- nrow(as.matrix(distMatKm10kE05X30D67))
+      dimMat <- nrow(distMatKm10kE05X30D67)
       rowNo <- dist1 %% dimMat
       colNo <- ceiling(dist1/dimMat)
       rc <- data.frame(r = rowNo, c = colNo)
       rc <- rc[rc$r > rc$c,]
-      if(x > 1){previous <- which(kmers10kE05X30Df$refDist == dists[x])[1] -1}else{previous <- 0}
+      previous <- which(kmers10kE05X30Df$refDist == dists[x])[1] -1
       rc <- rc + previous
-      sapply(1:nrow(rc),function(x){
-            #print(x)
-            if(kmers10kE05X30Df$connected[rc$c[x]] == '0'){
-                  kmers10kE05X30Df$connected[rc$c[x]] <<- as.character(rc$r[x])
-                  #print(kmers10kE05X30Df$connected[rc$c[x]])
-            }
-            else {
-                  kmers10kE05X30Df$connected[rc$c[x]] <<- paste0(kmers10kE05X30Df$connected[rc$c[x]],',',as.character(rc$r[x]))
-                  #print(kmers10kE05X30Df$connected[rc$c[x]])
-            }
+      #print(rc)
+      sapply(1:nrow(rc),function(i){
+         #print(x)
+         if (kmers10kE05X30Df$connected[rc$c[i]] == '0') {
+            kmers10kE05X30Df$connected[rc$c[i]] <<- as.character(rc$r[i])
+            #print(kmers10kE05X30Df$connected[rc$c[x]])
+         }
+         else {
+            kmers10kE05X30Df$connected[rc$c[i]] <<- paste0(kmers10kE05X30Df$connected[rc$c[i]],',',as.character(rc$r[i]))
+            #print(kmers10kE05X30Df$connected[rc$c[x]])
+         }
       })
+   }
       
       cat(x,'done\n')
 })
