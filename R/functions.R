@@ -56,7 +56,7 @@ kmers10kE05X30Df$connected <- rep('0',nrow(kmers10kE05X30Df))
 print('Finding connected kmers')
 dists <- sort(unique(kmers10kE05X30Df$refDist))
 kmers10kE05X30Df$connected <- rep('0',nrow(kmers10kE05X30Df))
-sapply(1:7, function(x){
+sapply(1:length(dists), function(x){
    km10kE05X30D67 <- kmers10kE05X30Df %>% filter(refDist == dists[x])
    distMatKm10kE05X30D67 <- stringdistmatrix(km10kE05X30D67[,1], method = "hamming")
    distMatKm10kE05X30D67 <- as.matrix(distMatKm10kE05X30D67)
@@ -85,7 +85,7 @@ sapply(1:7, function(x){
       })
    }
    
-   cat(x,'done\n')
+   cat(dists[x],'done\n')
 })
 return(kmers10kE05X30Df)
 }

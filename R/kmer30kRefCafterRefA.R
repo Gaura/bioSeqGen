@@ -1,0 +1,6 @@
+library(dplyr)
+library(stringdist)
+source('/work-zfs/mschatz1/genomescopeLR/bioSeqGen/R/functions.R')
+kmer10kE05X30DfRefC <- read.table('/work-zfs/mschatz1/genomescopeLR/bioSeqGen/data/files/kmer10kE05X30DfRefC.txt',header = 1,stringsAsFactors = F, sep = '\t')
+kmer10kE05X30DfRefC <- selfClusterDist(kmer10kE05X30DfRefC)
+write.table(kmer10kE05X30DfRefC,'/work-zfs/mschatz1/genomescopeLR/output/kmer10kE05X30DfRefC.txt',sep = '\t',quote = F,row.names = F)
