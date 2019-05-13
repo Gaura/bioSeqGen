@@ -1,0 +1,21 @@
+---
+title: "graphSearch"
+author: "Gaurav"
+date: "5/13/2019"
+output: html_document
+---
+
+```{r}
+kmer10kE05X30DfRefA <- read.table("D:/JHU/Spring19/601.749ComparativeGenomics/Project/kmers10kE05X30Df_refA.txt",sep = '\t', header = TRUE, stringsAsFactors = F)
+```
+Now write function to cluster the data
+```{r}
+#First find indices that are connected in a directional way (it means not all connected indices have a non-zero
+#value for the connected, but only those who have lower node number)
+connectedIndices <- kmer10kE05X30DfRefA$index[which(kmer10kE05X30DfRefA$connected != '0')]
+```
+
+```{r}
+searchedIndices <- NULL
+```
+
