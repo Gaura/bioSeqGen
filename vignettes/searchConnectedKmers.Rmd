@@ -79,7 +79,83 @@ refC <-  paste0(rep('C',21),collapse = '')
 kmer10kE05X30DfRefC$refDist <- sapply(1:nrow(kmer10kE05X30DfRefC),function(x){stringdist(kmer10kE05X30DfRefC[x,1],refC,method = "hamming")})
 ```
 ```{r}
+write.table(kmer10kE05X30DfRefC[,1:3],file = "D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/files/kmer10kE05X30DfRefC.txt", quote = F, sep = '\t', row.names = F, col.names = T )
+```
+
+```{r}
+kmer10kE05X30DfRefC <- read.table("D:/JHU/Spring19/601.749ComparativeGenomics/Project/kmer10kE05X30DfRefC.txt",sep = '\t', header = TRUE, stringsAsFactors = F)
+connectedIndicesC <- kmer10kE05X30DfRefA$index[which(kmer10kE05X30DfRefC$connected != '0')]
+```
+getDistance with respect to 'C' mer
+```{r}
+library(stringdist)
+kmer10kE05X30DfRefC <- cleanDf[,1:2]
+refC <-  paste0(rep('C',21),collapse = '')
+kmer10kE05X30DfRefC$refDist <- sapply(1:nrow(kmer10kE05X30DfRefC),function(x){stringdist(kmer10kE05X30DfRefC[x,1],refC,method = "hamming")})
+```
+```{r}
 source('D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/R/functions.R')
 kmer10kE05X30DfRefC <- selfClusterDist(kmer10kE05X30DfRefC)
+```
+```{r}
+write.table(kmer10kE05X30DfRefC[,1:3],file = "D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/data/files/kmer10kE05X30DfRefC.txt", quote = F, sep = '\t', row.names = F, col.names = T )
+```
+```{r}
+#Function to check for connected nodes of a node given it is connected to at least one node (Not to be called on nodes with 
+#connected == 0)
+getCleanDf <- function(kmer10kE05X30DfRefA, connectedIndices){
+searchedIndices <- NULL
+kmer10kE05X30DfRefA$markDeletion <- 0
+checkConnected <- function(index, passedVector = NULL){
+      connectedNodes <- as.numeric(strsplit(kmer10kE05X30DfRefA$connected[index],',',fixed = T)[[1]]) #find all connected nodes
+      if(length(connectedNodes) == 1){
+            if(kmer10kE05X30DfRefA$connected[connectedNodes] == '0'){ #if the node is not connected further
+                  return(c(connectedNodes,index,passedVector))
+            }else{
+                  if(!(connectedNodes %in% searchedIndices)){
+                        searchedIndices <<- c(searchedIndices,connectedNodes)
+                        return(checkConnected(connectedNodes,c(index,passedVector)))
+                  } else {
+                        return(c(connectedNodes,index,passedVector))
+                  }
+            }
+      }else{
+            connectedNodeVector <- NULL
+            sapply(1:length(connectedNodes),function(x){
+                  if(kmer10kE05X30DfRefA$connected[connectedNodes[x]] == "0"){
+                        connectedNodeVector <<- c(connectedNodeVector,connectedNodes[x])
+                  }else{
+                        connectedNodeVector <<- c(connectedNodeVector,checkConnected(connectedNodes[x]))
+                        searchedIndices <<- c(searchedIndices,connectedNodes[x])
+                  }
+                  1
+            })
+            return(c(connectedNodeVector,index,passedVector))
+            
+      }
+}
+
+tstDf <- kmer10kE05X30DfRefA
+sapply(1:length(connectedIndices), function(x) {
+      indices <- NULL
+      if(!(connectedIndices[x] %in% searchedIndices)){
+            indices <- checkConnected(connectedIndices[x])
+      }
+      if(!is.null(indices)){
+            indices <- sort(unique(indices))
+            maxIdx <- which.max(tstDf$Freq[indices])
+            tstDf$Freq[indices[maxIdx]] <<- sum(tstDf$Freq[indices])
+            tstDf$markDeletion[indices[-maxIdx]] <<- 1
+      }
+})
+
+cleanDf <- tstDf %>% filter(markDeletion == 0)
+return(cleanDf)
+}
+```
+
+```{r}
+kmer10kE05X30DfRefC <- read.table("D:/JHU/Spring19/601.749ComparativeGenomics/Project/kmer10kE05X30DfRefC.txt",sep = '\t', header = TRUE, stringsAsFactors = F)
+cleanDfC <- getCleanDf(kmer10kE05X30DfRefC, connectedIndicesC)
 ```
 
