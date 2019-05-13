@@ -71,4 +71,15 @@ remove double entries
 library(dplyr)
 cleanDf <- tstDf %>% filter(markDeletion == 0)
 ```
+getDistance with respect to 'C' mer
+```{r}
+library(stringdist)
+kmer10kE05X30DfRefC <- cleanDf[,1:2]
+refC <-  paste0(rep('C',21),collapse = '')
+kmer10kE05X30DfRefC$refDist <- sapply(1:nrow(kmer10kE05X30DfRefC),function(x){stringdist(kmer10kE05X30DfRefC[x,1],refC,method = "hamming")})
+```
+```{r}
+source('D:/JHU/Spring19/601.749ComparativeGenomics/Project/bioSeqGen/R/functions.R')
+kmer10kE05X30DfRefC <- selfClusterDist(kmer10kE05X30DfRefC)
+```
 
