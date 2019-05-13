@@ -19,13 +19,13 @@ connectedIndices <- kmer10kE05X30DfRefA$index[which(kmer10kE05X30DfRefA$connecte
 searchedIndices <- NULL
 kmer10kE05X30DfRefA$markDeletion <- 0
 checkConnected <- function(index, passedVector = NULL){
-      connectedNodes <- as.numeric(strsplit(kmer10kE05X30DfRefA$connected[Index],',',fixed = T)[[1]]) #find all connected nodes
+      connectedNodes <- as.numeric(strsplit(kmer10kE05X30DfRefA$connected[index],',',fixed = T)[[1]]) #find all connected nodes
       if(length(connectedNodes) == 1){
             if(kmer10kE05X30DfRefA$connected[connectedNodes] == '0'){ #if the node is not connected further
                   return(c(connectedNodes,index,passedVector))
             }else{
                   if(!(connectedNodes %in% searchedIndices)){
-                        searchedIndices <- c(searchedIndices,connectedNodes)
+                        searchedIndices <<- c(searchedIndices,connectedNodes)
                         return(checkConnected(connectedNodes,c(index,passedVector)))
                   } else {
                         return(c(connectedNodes,index,passedVector))
@@ -36,11 +36,13 @@ checkConnected <- function(index, passedVector = NULL){
       # }
 }
 ```
-
+test the function
 ```{r}
-i <- 5
-if(i > 40){
-      print('yes')
-}else{print('no')}
+tstDf <- kmer10kE05X30DfRefA[1:55,]
+#searchedIndices <- NULL
+sapply(1:5, function(x) {
+      if(!(connectedIndices[x] %in% searchedIndices)){
+      checkConnected(connectedIndices[x])}
+      })
 ```
 
