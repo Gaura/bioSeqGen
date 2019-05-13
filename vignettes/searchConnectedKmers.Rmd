@@ -51,11 +51,24 @@ checkConnected <- function(index, passedVector = NULL){
 ```
 test the function
 ```{r}
+tstDf <- kmer10kE05X30DfRefA
 searchedIndices <- NULL
-sapply(1:15, function(x) {
+sapply(1:length(connectedIndices), function(x) {
+      indices <- NULL
       if(!(connectedIndices[x] %in% searchedIndices)){
             indices <- checkConnected(connectedIndices[x])
       }
+      if(!is.null(indices)){
+            indices <- sort(unique(indices))
+            maxIdx <- which.max(tstDf$Freq[indices])
+            tstDf$Freq[indices[maxIdx]] <<- sum(tstDf$Freq[indices])
+            tstDf$markDeletion[indices[-maxIdx]] <<- 1
+      }
 })
+```
+remove double entries
+```{r}
+library(dplyr)
+cleanDf <- tstDf %>% filter(markDeletion == 0)
 ```
 
