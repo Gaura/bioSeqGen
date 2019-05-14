@@ -42,4 +42,4 @@ getCrossConnection <- function(kmers10kE05X30Df){
 }
 
 kmers10kE05X30DfCross <- getCrossConnection(kmer10kE05X30DfRefA)
-write.table(kmers10kE05X30Df,'/work-zfs/mschatz1/genomescopeLR/output/kmers10kE05X30DfCross.txt',sep = '\t',quote = F,row.names = F)
+write.table(kmers10kE05X30DfCross,'/work-zfs/mschatz1/genomescopeLR/output/kmers10kE05X30DfCross.txt',sep = '\t',quote = F,row.names = F)
