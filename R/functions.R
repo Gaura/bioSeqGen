@@ -66,12 +66,13 @@ sapply(1:length(dists), function(x){
       #later add the previous rows but for here since it is the first 2 clusters don't need to add
       dimMat <- nrow(distMatKm10kE05X30D67)
       rowNo <- dist1 %% dimMat
+      if(sum(rowNo == 0) > 0){rowNo[which(rowNo == 0)] <- dimMat}
       colNo <- ceiling(dist1/dimMat)
       rc <- data.frame(r = rowNo, c = colNo)
       rc <- rc[rc$r > rc$c,]
       previous <- which(kmers10kE05X30Df$refDist == dists[x])[1] -1
       rc <- rc + previous
-      #print(rc)
+      #print(dim(rc))
       sapply(1:nrow(rc),function(i){
          #print(x)
          if (kmers10kE05X30Df$connected[rc$c[i]] == '0') {
