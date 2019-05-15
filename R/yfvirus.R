@@ -3,7 +3,7 @@ library(dplyr)
 source('/work-zfs/mschatz1/genomescopeLR/bioSeqGen/R/functions.R')
 read.fasta('/work-zfs/mschatz1/genomescopeLR/bioSeqGen/data/yellow_fever_virus.fasta') -> ecoliSeq
 print('Loading Genome')
-paste0(ecoliSeq$NC_011750.1,collapse = '') -> ecoliGenome
+paste0(ecoliSeq[[1]],collapse = '') -> ecoliGenome
 ecoliGenome <- ecoliGenome[1]
 ecoli10k <- substr(ecoliGenome,1,1e4)
 ecoli10k <- toupper(ecoli10k)
